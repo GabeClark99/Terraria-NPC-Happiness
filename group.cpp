@@ -24,42 +24,53 @@ Group::Group(vector<NPC> npcVec)
 }
 
 void Group::CalculateNewScore()
-{
+{	
+	this->score = 0;
+	
 	for(int i = 0; i < npcList.size(); ++i) // for each npc...
 	{
 		for(int j = i + 1; j < npcList.size(); ++j) // for every other npc...
 		{
 			if( npcList.at(i).DoesLove( npcList.at(j) ) ) // if i loves j...
 			{
-				score += lovesScore;
+//cout << "\t\tloves, +2" << endl;
+				score += lovesScore; 
 			}
 			if( npcList.at(i).DoesLike( npcList.at(j) ) ) // if i likes j...
 			{
-				score += likesScore;
+//cout << "\t\tlikes, +1" << endl;
+				score += likesScore; 
 			}
 			if( npcList.at(i).DoesDislike( npcList.at(j) ) ) // if i dislikes j...
 			{
+//cout << "\t\tdislikes, -1" << endl;
 				score += dislikesScore;
 			}
 			if( npcList.at(i).DoesHate( npcList.at(j) ) ) // if i hates j...
 			{
+//cout << "\t\thates, -2" << endl;
 				score += hatesScore;
 			}
 			
+			
 			if( npcList.at(j).DoesLove( npcList.at(i) ) ) // if j loves i...
 			{
+//cout << "\t\tloves, +2" << endl;
 				score += lovesScore;
 			}
 			if( npcList.at(j).DoesLike( npcList.at(i) ) ) // if j likes i...
 			{
+//cout << "\t\tlikes, +1" << endl;
 				score += likesScore;
 			}
 			if( npcList.at(j).DoesDislike( npcList.at(i) ) ) // if j dislikes i...
 			{
+//cout << "\t\tdislikes, -1" << endl;
 				score += dislikesScore;
 			}
 			if( npcList.at(j).DoesHate( npcList.at(i) ) ) // if j hates i...
 			{
+//cout << "\t\thates, -2" << endl;
 				score += hatesScore;
 			}
 		}
@@ -69,7 +80,6 @@ void Group::CalculateNewScore()
 void Group::AddNpc(NPC newNpc) 
 {
 	this->npcList.push_back(newNpc);
-	this->CalculateNewScore();
 }
 
 void Group::RemoveLastNpc() { this->npcList.pop_back(); }
@@ -275,5 +285,9 @@ NPC* Group::Find(string npcName)
 
 vector<NPC> Group::GetNpcList() { return this->npcList; }
 
-int Group::GetScore() { return this->score; }
+int Group::GetScore() 
+{
+	this->CalculateNewScore();
+	return this->score; 
+}
 
