@@ -1,0 +1,109 @@
+/*
+	Gabriel Clark
+	Terraria NPC Happiness
+	May 2020
+*/
+
+
+#include "npc.hpp"
+#include "group.hpp"
+#include <iostream>
+#include <vector>
+
+using std::cout;
+using std::endl;
+using std::vector;
+using std::string;
+
+void AddNPC(vector<NPC> npcVec, vector<Group> groupVec);
+
+const int numNpcs = 4;
+int versions = 0;
+
+int main() 
+{
+	Group mastergroup;
+	mastergroup.MakeListFromFile("npcs.tsv");
+	
+	vector<NPC> npcList = mastergroup.GetNpcList();
+	
+	vector<Group> groupVec;
+	AddNPC(npcList, groupVec);
+	cout << endl << endl << "Total Versions: " << versions << endl;
+	
+	return 0;
+}
+
+void AddNPC(vector<NPC> npcVec, vector<Group> groupVec)
+{
+//if(versions % 1000 == 0) cout << "versions: " << versions << endl;
+
+	if(npcVec.size() == 0) // if you're done, print out what you got
+	{
+		cout << "---FINISHED: ";
+		for(unsigned int i = 0; i < groupVec.size(); ++i)
+		{
+			vector<NPC> groupList = groupVec.at(i).GetNpcList();
+			
+			for(unsigned int j = 0; j < groupList.size(); ++j)
+			{
+				cout << groupList.at(j).GetName();
+				
+				if( j < groupList.size() - 1 )
+				{
+					cout << ",";
+				}
+			}
+			
+			if(i < groupVec.size() - 1)
+			{
+				cout << " - ";
+			}
+		}
+++versions;
+		cout << endl << endl;
+		return;
+	}
+
+/*cout << "\tcurrent state: ";
+for(unsigned int i = 0; i < groupVec.size(); ++i)
+{
+	vector<NPC> groupList = groupVec.at(i).GetNpcList();
+	
+	for(unsigned int j = 0; j < groupList.size(); ++j)
+	{
+		cout << groupList.at(j).GetName();
+		
+		if( j < groupList.size() - 1 )
+		{
+			cout << ",";
+		}
+	}
+	
+	if(i < groupVec.size() - 1)
+	{
+		cout << " - ";
+	}
+}
+cout << endl;*/
+
+	vector<NPC> tempVec; // coppies npcs over, without the first entry
+	tempVec.insert(tempVec.begin(), npcVec.begin() + 1, npcVec.end());
+
+//cout << "number of groups: " << groupVec.size() << endl;
+	for(unsigned int i = 0; i < groupVec.size(); ++i)
+	{
+//cout << "\tadding: " << npcVec.at(0).GetName() << " to group: " << i << endl;
+		groupVec.at(i).AddNpc( npcVec.at(0) ); // adds the npc at the front of the list
+		AddNPC(tempVec, groupVec);
+		groupVec.at(i).RemoveLastNpc();
+	}
+
+	Group newGroup;
+	newGroup.AddNpc( npcVec.at(0) );
+	groupVec.push_back(newGroup);
+	AddNPC(tempVec, groupVec);
+	groupVec.pop_back();
+}
+
+
