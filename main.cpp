@@ -15,9 +15,11 @@ using std::endl;
 using std::vector;
 using std::string;
 
-void UpdateBestVersion(vector<Group>* groupVec, vector<Group>* bestVersion);
+void Initialize(vector<Group>* groupsVec);
 
-int CalculateTotalScore(vector<Group> groupVec);
+void UpdateBestVersion(vector<Group>* groupVec, vector<Group>* bestVersion, double* bestScore);
+
+double CalculateAverageScore(vector<Group> groupVec);
 
 void DisplayVersion(vector<Group> currentVersion);
 
@@ -27,87 +29,125 @@ int main()
 	mastergroup.MakeListFromFile("npcs.tsv");
 	
 	vector<NPC> npcVec = mastergroup.GetNpcList();
+	vector<Group> groupsVec;
 	
-	vector<Group> groupVec;
-	Group newGroup;
-	newGroup.AddNpc(npcVec.at(0));
-	groupVec.push_back( newGroup );
+	Initialize(&groupsVec);
 	
-	vector<Group> bestVersion = groupVec;
+	vector<Group> bestVersion = groupsVec;
+	double bestScore = 1.0;
 	
-	for(int i = 1; i < npcVec.size(); ++i)
+	for(int i = 0; i < npcVec.size(); ++i)
 	{
-		cout << "i: " << i << endl;
+		groupsVec = bestVersion;
 		
-		groupVec = bestVersion;
-		
-		for(int j = 0; j < groupVec.size(); ++j)
+		for(int j = 0; j < groupsVec.size(); ++j)
 		{
-			cout << "\tj: " << j << endl;
+			groupsVec.at(j).AddNpc( npcVec.at(i) ); // add current npc to current group
 			
-			groupVec.at(j).AddNpc( npcVec.at(i) );
+			UpdateBestVersion(&groupsVec, &bestVersion, &bestScore); // check if its better, and update if it is
 			
-			UpdateBestVersion(&groupVec, &bestVersion);
-			
-			groupVec.at(j).RemoveLastNpc();
+			groupsVec.at(j).RemoveLastNpc(); // undo to try another method
 		}
-		
-		cout << "\tadding new group" << endl;
-		
-		Group newGroup;
-		newGroup.AddNpc( npcVec.at(i) );
-		groupVec.push_back(newGroup);
-		
-		UpdateBestVersion(&groupVec, &bestVersion);
-		
-		groupVec.pop_back();
 	}
 	
-	cout << "Best Total Score: " << CalculateTotalScore(bestVersion) << endl;
-	cout << "Best Version: "; DisplayVersion(bestVersion); cout << endl;
+	cout << "Best Average: " << CalculateAverageScore(bestVersion) << endl;
+	cout << "Best Version: " << endl; DisplayVersion(bestVersion); cout << endl;
+	
 	
 	
 	return 0;
 }
 
-void UpdateBestVersion(vector<Group>* groupVec, vector<Group>* bestVersion)
+void Initialize(vector<Group>* groupsVec)
 {
-	cout << "\t\tcurrent version: "; DisplayVersion(*groupVec); cout << endl;
+	// creating a group, setting the biome, and adding it to the groups vector
+	Group forrest; forrest.SetBiome("Forest"); groupsVec->push_back(forrest);
+	Group desert; desert.SetBiome("Desert"); groupsVec->push_back(desert);
+	Group jungle; jungle.SetBiome("Jungle"); groupsVec->push_back(jungle);
+	Group snow; snow.SetBiome("Snow"); groupsVec->push_back(snow);
+	Group ocean; ocean.SetBiome("Ocean"); groupsVec->push_back(ocean);
+	Group hallow; hallow.SetBiome("Hallow"); groupsVec->push_back(hallow);
+	Group underground; underground.SetBiome("Underground"); groupsVec->push_back(underground);
+	Group surfaceMushroom; surfaceMushroom.SetBiome("Surface Mushroom"); groupsVec->push_back(surfaceMushroom);
+}
+
+void UpdateBestVersion(vector<Group>* groupVec, vector<Group>* bestVersion, double* bestScore)
+{
+	//cout << "\tcurrent version:\n"; DisplayVersion(*groupVec); cout << endl;
 	
-	int currentScore = CalculateTotalScore(*groupVec);
-	int bestScore = CalculateTotalScore(*bestVersion);
+	//cout << endl << "---CALCULATING CURRENT SCORE---" << endl;
+	double currentScore = CalculateAverageScore(*groupVec);
+	/*cout << "---CALCULATING BEST SCORE---" << endl;
+	double bestScore = CalculateAverageScore(*bestVersion);*/
 	
-	cout << "\t\tcurrent score: " << currentScore << endl;
-	cout << "\t\tbest score: " << bestScore << endl;
+	//cout << endl;
+	//cout << "\tcurrent score: " << currentScore << endl;
+	//cout << "\tbest score: " << *bestScore << endl;
 	
-	if(currentScore >= bestScore)
+	int numNpcsCurrentVersion = 0;
+	for(int i = 0; i < groupVec->size(); ++i)
 	{
-		cout << "\t\tupdating best score." << endl;
-		
-		*bestVersion = *groupVec;
+		numNpcsCurrentVersion += groupVec->at(i).GetNumberOfNpcs();
 	}
 	
-	cout << endl;
+	int numNpcsBestVersion = 0;
+	for(int i = 0; i < bestVersion->size(); ++i)
+	{
+		numNpcsBestVersion += bestVersion->at(i).GetNumberOfNpcs();
+	}
+	
+	if(currentScore <= *bestScore || numNpcsCurrentVersion > numNpcsBestVersion)
+	{
+		//cout << "\tupdating best score..." << endl;
+		
+		*bestVersion = *groupVec;
+		*bestScore = currentScore;
+	}
+	else
+	{
+		//cout << endl;
+	}
 	
 	return;
 }
 
-int CalculateTotalScore(vector<Group> groupVec)
+double CalculateAverageScore(vector<Group> groupsVec)
 {
-	int totalScore = 0;
+	double avg;
+	double sum = 0.0;
+	int totalNpcs = 0;
 	
-	for(int i = 0; i < groupVec.size(); ++i)
+	for(int i = 0; i < groupsVec.size(); ++i)
 	{
-		totalScore += groupVec.at(i).GetScore();
+		if(groupsVec.at(i).GetNumberOfNpcs() > 0)
+		{
+			totalNpcs++;
+			
+			double score = groupsVec.at(i).GetScore();
+			
+			//cout << "score from npc " << i << ": " << score << endl; 
+			
+			sum += score;
+			//cout << "\t\tsum: " << sum << endl << endl;
+		}
+		else
+		{
+			//cout << "skipping biome " << groupsVec.at(i).GetBiome() << endl << endl;
+			// the group doesn't have any npcs, so its score is 1.0, which doesn't affect the average.
+		}
 	}
 	
-	return totalScore;
+	avg = sum / totalNpcs;
+	
+	return avg;
 }
 
 void DisplayVersion(vector<Group> currentVersion)
 {
 	for(int i = 0; i < currentVersion.size(); ++i)
 	{
+		cout << "\t" << currentVersion.at(i).GetBiome() << ": ";
+		
 		vector<NPC> npcList = currentVersion.at(i).GetNpcList();
 		
 		for(int j = 0; j < npcList.size(); ++j)
@@ -116,92 +156,15 @@ void DisplayVersion(vector<Group> currentVersion)
 			
 			if( j < npcList.size() - 1 )
 			{
-				cout << ",";
+				cout << ", ";
 			}
 		}
 		
 		if(i < currentVersion.size() - 1)
 		{
-			cout << " - ";
+			cout << /*" - "*/ endl;
 		}
 	}
 }
-
-/*Group mastergroup;
-	mastergroup.MakeListFromFile("npcs2.tsv");
-	
-	vector<NPC> npcVec = mastergroup.GetNpcList();
-	vector<Group> groupVec;
-	vector<Group> bestVersion = groupVec;
-	int bestTotalScore = 0;
-	
-	for(int i = 0; i < npcVec.size(); ++i) // adds in the npcs one by one
-	{
-		cout << endl << "i: " << i << endl;
-		
-		for(int j = 0; j < groupVec.size(); ++j) // adds the npc to all the available groups
-		{
-			
-			cout << endl << "\tj: " << j << endl;
-			cout << "\tadding npc: " << npcVec.at(i).GetName() << endl;
-
-			groupVec.at(j).AddNpc( npcVec.at(i) );
-			int totalScore = CalculateTotalScore(groupVec);
-			
-			//cout << "\ttotalScore: " << totalScore << endl;
-			//cout << "\tbestTotalScore: " << bestTotalScore << endl;
-			
-			if(totalScore >= bestTotalScore) // if current version's score is better than bestVersion's score...
-			{
-				//cout << "\tupdating bestVersion..." << endl;
-				bestVersion = groupVec;
-				bestTotalScore = totalScore;
-			}
-			groupVec.at(j).RemoveLastNpc(); // undo what we just did to keep the same starting state (we have a copy in bestVersion if this version was better)
-		}
-		
-		Group newGroup;
-		newGroup.AddNpc( npcVec.at(i) );
-		groupVec.push_back(newGroup);
-		
-		int totalScore = CalculateTotalScore(groupVec);
-		
-		//cout << "totalScore: " << totalScore << endl;
-		//cout << "bestTotalScore: " << bestTotalScore << endl;
-
-		if(totalScore >= bestTotalScore) // if current version's score is better than bestVersion's score...
-		{
-			//cout << "updating bestVersion..." << endl;
-			
-			bestVersion = groupVec;
-			bestTotalScore = totalScore;
-		}
-		groupVec.pop_back(); // undo what we just did to keep the same starting state (we have a copy in bestVersion if this version was better)
-		
-		groupVec = bestVersion; // set the current version to the best one to improve during the next run
-	}
-	
-	cout << "Best Total Score: " << bestTotalScore << endl;
-	cout << "Best Version: ";
-	for(int i = 0; i < bestVersion.size(); ++i)
-	{
-		vector<NPC> groupList = bestVersion.at(i).GetNpcList();
-		
-		for(int j = 0; j < groupList.size(); ++j)
-		{
-			cout << groupList.at(j).GetName();
-			
-			if( j < groupList.size() - 1 )
-			{
-				cout << ",";
-			}
-		}
-		
-		if(i < groupVec.size() - 1)
-		{
-			cout << " - ";
-		}
-	}*/
-
 
 

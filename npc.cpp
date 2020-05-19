@@ -47,9 +47,13 @@ string NPC::GetNpcHatesNames() { return this->npcHatesNames; }
 
 
 
+void NPC::SetBiomeLove(string biome) { this->biomeLove = biome; }
+
 void NPC::SetBiomeLike(string biome) { this->biomeLike = biome; }
 
 void NPC::SetBiomeDislike(string biome) { this->biomeDislike = biome; }
+
+void NPC::SetBiomeHates(string biome) { this->biomeHate = biome; }
 
 
 bool NPC::DoesLove(NPC npc)
@@ -72,9 +76,37 @@ bool NPC::DoesHate(NPC npc)
 	return this->Find(npc, this->npcHates);
 }
 
+bool NPC::DoesBiomeLove(string biome) { return this->biomeLove == biome  ? true : false; }
 
+bool NPC::DoesBiomeLike(string biome)
+{
+	/*if(this->biomeLike == biome)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}*/
+	
+	return this->biomeLike == biome ? true : false;
+}
 
+bool NPC::DoesBiomeDislike(string biome)
+{
+	/*if(this->biomeDislike == biome)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}*/
+	
+	return this->biomeDislike == biome ? true : false;
+}
 
+bool NPC::DoesBiomeHate(string biome) { return this->biomeHate == biome ? true : false; }
 
 
 

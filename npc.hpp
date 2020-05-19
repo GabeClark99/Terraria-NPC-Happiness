@@ -23,8 +23,10 @@ class NPC
 		string npcDislikesNames;
 		string npcHatesNames;
 		
+		string biomeLove;
 		string biomeLike;
 		string biomeDislike;
+		string biomeHate;
 		
 		bool Find(NPC npc, vector<NPC> npcVec);
 	
@@ -52,13 +54,20 @@ class NPC
 		void SetNpcHatesNames(string names);
 		string GetNpcHatesNames();
 		
+		void SetBiomeLove(string);
 		void SetBiomeLike(string);
 		void SetBiomeDislike(string);
+		void SetBiomeHates(string);
 		
 		bool DoesLove(NPC npc);
 		bool DoesLike(NPC npc);
 		bool DoesDislike(NPC npc);
 		bool DoesHate(NPC npc);
+		
+		bool DoesBiomeLove(string biome);
+		bool DoesBiomeLike(string biome);
+		bool DoesBiomeDislike(string biome);
+		bool DoesBiomeHate(string biome);
 };
 
 #endif
