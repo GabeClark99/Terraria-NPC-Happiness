@@ -40,43 +40,46 @@ void Group::CalculateNewScore()
 		{
 			//cout << "\t\t" << npcList.at(i).GetName() << " loves " << this->biome << endl;
 			npcPrice *= lovesScore;
-			//cout << "\t\tscore: " << this->score << endl;
+			//cout << "\t\tnpcPrice: " << npcPrice << endl;
 		}
 		if(npcList.at(i).DoesBiomeLike(this->biome))
 		{
 			//cout << "\t\t" << npcList.at(i).GetName() << " likes " << this->biome << endl;
 			npcPrice *= likesScore;
-			//cout << "\t\tscore: " << this->score << endl;
+			//cout << "\t\tnpcPrice: " << npcPrice << endl;
 		}
 		if(npcList.at(i).DoesBiomeDislike(this->biome))
 		{
 			//cout << "\t\t" << npcList.at(i).GetName() << " dislikes " << this->biome << endl;
 			npcPrice *= dislikesScore;
-			//cout << "\t\tscore: " << this->score << endl;
+			//cout << "\t\tnpcPrice: " << npcPrice << endl;
 		}
 		if(npcList.at(i).DoesBiomeHate(this->biome))
 		{
 			//cout << "\t\t" << npcList.at(i).GetName() << " hates " << this->biome << endl;
 			npcPrice *= hatesScore;
-			//cout << "\t\tscore: " << this->score << endl;
+			//cout << "\t\tnpcPrice: " << npcPrice << endl;
 		}
 		
 		// neighbors preferences section
 		//cout << endl << "\t\tneighbors preferences..." << endl;
-		for(int j = i + 1; j < npcList.size(); ++j) // for every other npc...
+		
+		if(this->npcList.size() < 4)
+		{
+			//cout << "\t\tless than 4 in this group" << endl;
+			npcPrice *= 0.9;
+			//cout << "\t\tnpcPrice: " << npcPrice << endl;
+		}
+		
+		for(int j = 0; j < npcList.size(); ++j) // for every npc... (including yourself, im lazy)
 		{
 			// truffle's special section
 			// this is just here to make sure truffle ends up in Surface Mushroom, as he can't live anywhere else
 			if(npcList.at(i).GetName() == "Truffle" && biome != "Surface Mushroom") // if truffle is in a biome that isn't Surface Mushroom...
 			{
 				//cout << "\t\tTruffle is in the wrong place!" << endl;
-				npcPrice *= 1000000;
-				//cout << "\t\tscore: " << this->score << endl;
-			}
-			
-			if(this->npcList.size() < 4)
-			{
-				npcPrice *= 0.9;
+				npcPrice *= INT_MAX;
+				//cout << "\t\tnpcPrice: " << npcPrice << endl;
 			}
 			
 			//cout << "\t\tcomparing " << npcList.at(i).GetName() << " to " << npcList.at(j).GetName() << endl;
@@ -84,52 +87,27 @@ void Group::CalculateNewScore()
 			if( npcList.at(i).DoesLove( npcList.at(j) ) ) // if i loves j...
 			{
 				//cout << "\t\t" << npcList.at(i).GetName() << " loves " << npcList.at(j).GetName() << endl;
+				//cout << "\t\tmultplying " << npcPrice << " by " << lovesScore << endl;
 				npcPrice *= lovesScore; 
-				//cout << "\t\tscore: " << this->score << endl;
+				//cout << "\t\tnpcPrice: " << npcPrice << endl;
 			}
 			if( npcList.at(i).DoesLike( npcList.at(j) ) ) // if i likes j...
 			{
 				//cout << "\t\t" << npcList.at(i).GetName() << " likes " << npcList.at(j).GetName() << endl;
 				npcPrice *= likesScore;
-				//cout << "\t\tscore: " << this->score << endl;
+				//cout << "\t\tnpcPrice: " << npcPrice << endl;
 			}
 			if( npcList.at(i).DoesDislike( npcList.at(j) ) ) // if i dislikes j...
 			{
 				//cout << "\t\t" << npcList.at(i).GetName() << " dislikes " << npcList.at(j).GetName() << endl;
 				npcPrice *= dislikesScore;
-				//cout << "\t\tscore: " << this->score << endl;
+				//cout << "\t\tnpcPrice: " << npcPrice << endl;
 			}
 			if( npcList.at(i).DoesHate( npcList.at(j) ) ) // if i hates j...
 			{
 				//cout << "\t\t" << npcList.at(i).GetName() << " hates " << npcList.at(j).GetName() << endl;
 				npcPrice *= hatesScore;
-				//cout << "\t\tscore: " << this->score << endl;
-			}
-			
-			
-			if( npcList.at(j).DoesLove( npcList.at(i) ) ) // if j loves i...
-			{
-				//cout << "\t\t" << npcList.at(j).GetName() << " loves " << npcList.at(i).GetName() << endl;
-				npcPrice *= lovesScore;
-				//cout << "\t\tscore: " << this->score << endl;
-			}
-			if( npcList.at(j).DoesLike( npcList.at(i) ) ) // if j likes i...
-			{
-				//cout << "\t\t" << npcList.at(j).GetName() << " likes " << npcList.at(i).GetName() << endl;
-				npcPrice *= likesScore;
-				//cout << "\t\tscore: " << this->score << endl;
-			}
-			if( npcList.at(j).DoesDislike( npcList.at(i) ) ) // if j dislikes i...
-			{
-				//cout << "\t\t" << npcList.at(j).GetName() << " dislikes " << npcList.at(i).GetName() << endl;
-				npcPrice *= dislikesScore;
-				//cout << "\t\tscore: " << this->score << endl;
-			}
-			if( npcList.at(j).DoesHate( npcList.at(i) ) ) // if j hates i...
-			{
-				//cout << "\t\t" << npcList.at(j).GetName() << " hates " << npcList.at(i).GetName() << endl;
-				npcPrice *= hatesScore;
-				//cout << "\t\tscore: " << this->score << endl;
+				//cout << "\t\tnpcPrice: " << npcPrice << endl;
 			}
 		}
 		
@@ -138,7 +116,7 @@ void Group::CalculateNewScore()
 	
 	//cout << "" << endl;
 	
-	this->score = npcPriceSum / this->npcList.size();
+	this->score = npcPriceSum;
 }
 
 void Group::AddNpc(NPC newNpc) 
@@ -156,6 +134,13 @@ void Group::RemoveLastNpc() { this->npcList.pop_back(); }
 void Group::RemoveNPC(int position)
 {
 	this->npcList.erase(this->npcList.begin() + position);
+}
+
+void Group::RemoveAllNpcs()
+{
+	this->npcList.clear();
+	
+	return;
 }
 
 // Goes through each line of file, pulling in relevent data to create npc instance, minus

@@ -33,6 +33,7 @@ class Group
 		void AddNpc(NPC npc, int position);
 		void RemoveLastNpc();
 		void RemoveNPC(int position);
+		void RemoveAllNpcs();
 		NPC* Find(string npcName);
 		
 		vector<NPC> GetNpcList();
